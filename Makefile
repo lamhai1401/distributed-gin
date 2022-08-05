@@ -1,5 +1,7 @@
 SHELL := /bin/bash
 
-.PHONY: test
+swagger:
+	swagger generate spec -o ./swagger.json
+	swagger serve ./swagger.json
 
-github.com/lamhai1401/distributed-gin
+.PHONY: test
