@@ -1,0 +1,26 @@
+{
+    "go.autocompleteUnimportedPackages": true,
+    "go.gotoSymbol.includeGoroot": true,
+    "go.gotoSymbol.includeImports": true,
+    "go.inferGopath": false,
+    "go.useLanguageServer": true,
+    "[go]": {
+        "editor.snippetSuggestions": "none",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "gopls": {
+        "usePlaceholders": true // add parameter placeholders when completing a function
+    },
+    "files.eol": "\n", // formatting only supports LF line endings
+    "go.toolsEnvVars": {
+        "GO111MODULE": "on",
+    },
+    "go.languageServerFlags": [
+        "serve",
+        "-rpc.trace",
+        "--debug=localhost:6060",
+    ],
+}
