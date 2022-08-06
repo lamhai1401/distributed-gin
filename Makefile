@@ -12,6 +12,8 @@ redis:
 	docker run -d --name redis -p 6379:6379 redis:6.0
 
 run_server:
+	JWT_SECRET=eUbP9shywUygMx7u \
+	X_API_KEY=eUbP9shywUygMx7u \
 	MONGO_URI="mongodb://admin:password@localhost:27017/test?authSource=admin" \
 	MONGO_DATABASE=test \
 	go run .

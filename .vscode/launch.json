@@ -18,7 +18,9 @@
                 // "NODE_CHANNEL" : "peer_node:pn-oNBzNfpYebKQ4p54uU-uZ",
                 "PROCESS_MANAGER_WS": "wss://process-manager-quickom.ap.ngrok.io/socket/peer-node/v1",
                 "MONGO_URI":"mongodb://admin:password@localhost:27017/test?authSource=admin",
-                "MONGO_DATABASE": "test"
+                "MONGO_DATABASE": "test",
+                "JWT_SECRET":"eUbP9shywUygMx7u",
+                "X_API_KEY":"eUbP9shywUygMx7u",
             },
             "args": ["500"]
         }

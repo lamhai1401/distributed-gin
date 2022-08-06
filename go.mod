@@ -3,12 +3,16 @@ module github.com/lamhai1401/distributed-gin
 go 1.18
 
 require (
+	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/rs/xid v1.4.0
 	go.mongodb.org/mongo-driver v1.10.1
 )
 
 require (
+	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -17,7 +21,11 @@ require (
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/securecookie v1.1.1 // indirect
+	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect

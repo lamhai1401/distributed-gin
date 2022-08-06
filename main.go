@@ -18,13 +18,18 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/sessions"
+	redisStore "github.com/gin-contrib/sessions/redis"
+
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"github.com/lamhai1401/distributed-gin/handler"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -190,19 +195,101 @@ func init() {
 	collection = client.Database(os.Getenv(
 		"MONGO_DATABASE")).Collection("recipes")
 
-	recipesHandler = handler.NewRecipesHandler(ctx, collection)
+	// config redis
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+	status := redisClient.Ping(ctx)
+	fmt.Println("redis status", status)
+
+	recipesHandler = handler.NewRecipesHandler(ctx, collection, redisClient)
+
+	collectionUsers := client.Database(os.Getenv(
+		"MONGO_DATABASE")).Collection("users")
+	authHandler = handler.NewAuthHandler(ctx, collectionUsers)
+
+	// users := map[string]string{
+	// 	"admin":      "fCRmh4Q2J7Rseqkz",
+	// 	"packt":      "RE4zfHB35VPtTkbT",
+	// 	"mlabouardy": "L3nSFRcZzNQ67bcc",
+	// }
+	// h := sha256.New()
+	// for username, password := range users {
+	// 	result, err := collectionUsers.InsertOne(ctx, bson.M{
+	// 		"username": username,
+	// 		"password": string(h.Sum([]byte(password))),
+	// 	})
+	// 	if err != nil {
+	// 		log.Fatal(err.Error())
+	// 	} else {
+	// 		fmt.Println(result)
+	// 	}
+	// }
 }
 
 func main() {
 	router := gin.Default()
-	router.POST("/recipes", recipesHandler.NewRecipeHandler)
+
+	store, _ := redisStore.NewStore(10, "tcp",
+		"localhost:6379", "", []byte("secret"))
+	router.Use(sessions.Sessions("recipes_api", store))
+
+	// none auth
 	router.GET("/recipes",
 		recipesHandler.ListRecipesHandler)
-	router.PUT("/recipes/:id",
-		recipesHandler.UpdateRecipeHandler)
+	router.POST("/signin", authHandler.SignInHandler)
+	router.POST("/signout", authHandler.SignOutHandler)
+	router.POST("/refresh", authHandler.RefreshHandler)
+
+	// auth
+	authorized := router.Group("/")
+	authorized.Use(AuthMiddleware())
+	{
+		authorized.POST("/recipes",
+			recipesHandler.NewRecipeHandler)
+		authorized.PUT("/recipes/:id",
+			recipesHandler.UpdateRecipeHandler)
+		// authorized.DELETE("/recipes/:id",
+		// 	recipesHandler.DeleteRecipeHandler)
+		// authorized.GET("/recipes/:id",
+		// 	recipesHandler.GetOneRecipeHandler)
+	}
 	router.Run()
 }
 
+var authHandler *handler.AuthHandler
 var ctx context.Context
 var err error
 var client *mongo.Client
+
+func AuthMiddleware() gin.HandlerFunc {
+	// return func(c *gin.Context) {
+	// 	tokenValue := c.GetHeader("Authorization")
+	// 	claims := &handler.Claims{}
+	// 	tkn, err := jwt.ParseWithClaims(tokenValue, claims,
+	// 		func(token *jwt.Token) (interface{}, error) {
+	// 			return []byte(os.Getenv("JWT_SECRET")), nil
+	// 		})
+	// 	if err != nil {
+	// 		c.AbortWithStatus(http.StatusUnauthorized)
+	// 	}
+	// 	if tkn == nil || !tkn.Valid {
+	// 		c.AbortWithStatus(http.StatusUnauthorized)
+	// 	}
+	// 	c.Next()
+	// }
+
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		sessionToken := session.Get("token")
+		if sessionToken == nil {
+			c.JSON(http.StatusForbidden, gin.H{
+				"message": "Not logged",
+			})
+			c.Abort()
+		}
+		c.Next()
+	}
+}
